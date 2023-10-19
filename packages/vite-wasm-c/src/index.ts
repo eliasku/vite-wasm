@@ -17,7 +17,7 @@ export interface CCOptions {
     totalMemory?: number,
     buildDir?: string,
     compilerFlags?: string[],
-    linkerFlags: string[],
+    linkerFlags?: string[],
 }
 
 const run = (cmd: string, args: string[]): Promise<number> => {
@@ -32,7 +32,7 @@ const run = (cmd: string, args: string[]): Promise<number> => {
 
 export const cc = (options: CCOptions): Plugin => {
     let logger: Logger;
-    const llvm: string = options.llvm ?? process.env.LLVM_ROOT ?? "";
+    const llvm: string = options.llvm ?? process.env.LLVM_PATH ?? "";
     const watch: RegExp = options.watch ?? /src\/.*\.[hc]$/;
     const sources: string[] = options.sources ?? [];
     const headerSearchPath: string[] = options.headerSearchPath ?? [];
@@ -159,7 +159,7 @@ export const cc = (options: CCOptions): Plugin => {
         async configResolved(config) {
             logger = config.logger;
             if (!llvm) {
-                logger.error("[cc] set `LLVM_ROOT` environment variable or define `{ llvm }` option");
+                logger.error("[cc] set `LLVM_PATH` environment variable or define `{ llvm }` option");
             }
             if (stackSize) {
                 stackSize = alignMemoryWithWarning(stackSize, "stackSize");

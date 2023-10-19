@@ -24,6 +24,7 @@ jobs:
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: "17"
+          directory: ${{ runner.temp }}/llvm
 
       - name: Install Dependencies
         run: npm ci

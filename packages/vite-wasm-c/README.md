@@ -16,7 +16,7 @@ Add `cc` plugin to your vite config:
 plugins: [
     // ...
     cc({
-        // set LLVM installation path, `process.env.LLVM_ROOT` by default
+        // set LLVM installation path, `process.env.LLVM_PATH` by default
         llvm: "/usr/local/opt/llvm",
         // regular expression to allow watch your C source-code files
         watch: /src\/(wasm|include)\/.*\.[hc]$/,
