@@ -3,7 +3,7 @@ import { cc } from "@eliasku/vite-plugin-wasm-c";
 
 export default defineConfig(async ({ command, mode }) => {
     const env = loadEnv(mode, process.cwd(), "");
-    const llvm = env.LLVM_ROOT;
+    const llvm = env.LLVM_ROOT || process.env.LLVM_PATH;
     console.info("llvm: " + llvm);
 
     return {
