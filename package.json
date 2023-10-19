@@ -5,8 +5,9 @@
     "type": "module",
     "private": true,
     "scripts": {
-        "build": "wsrun -m -t build",
-        "release": "changeset publish"
+        "build-for-release": "wsrun -m -t build-for-release",
+        "build": "echo skip",
+        "release": "npm run build-for-release && changeset publish"
     },
     "dependencies": {},
     "devDependencies": {
