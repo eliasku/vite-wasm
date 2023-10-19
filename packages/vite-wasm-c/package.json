@@ -10,9 +10,13 @@
     },
     "scripts": {
         "dev": "vite build --watch",
-        "build": "vite build"
+        "build": "vite build",
+        "release": "vite build"
     },
     "peerDependencies": {
         "vite": "^4.0.0"
-    }
+    },
+    "files": [
+        "dist"
+    ]
 }
