@@ -32,7 +32,7 @@ const run = (cmd: string, args: string[]): Promise<number> => {
 
 export const cc = (options: CCOptions): Plugin => {
     let logger: Logger;
-    const llvm: string = options.llvm ?? process.env.LLVM_PATH ?? "";
+    const llvm: string = options.llvm ?? (process.env.LLVM_PATH ?? "");
     const watch: RegExp = options.watch ?? /src\/.*\.[hc]$/;
     const sources: string[] = options.sources ?? [];
     const headerSearchPath: string[] = options.headerSearchPath ?? [];
@@ -178,7 +178,7 @@ export const cc = (options: CCOptions): Plugin => {
                 }, 200);
             }
             else {
-                build();
+                await build();
             }
         },
         async configureServer(server) {
