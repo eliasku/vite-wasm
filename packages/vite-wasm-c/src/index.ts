@@ -1,5 +1,3 @@
-/// <reference types="vite/client" />
-
 import { Logger, Plugin } from "vite";
 import * as path from "node:path";
 import { mkdir, readFile } from "node:fs/promises";
@@ -10,13 +8,16 @@ import { existsSync } from "node:fs";
 const wasmPageSize = 0x10000;
 
 export interface CCOptions {
-    llvm: string,
-    watch: RegExp,
-    sources: string[],
-    headerSearchPath: string[],
-    output: string,
+    llvm?: string,
+    watch?: RegExp,
+    sources?: string[],
+    headerSearchPath?: string[],
+    output?: string,
     stackSize?: number,
     totalMemory?: number,
+    buildDir?: string,
+    compilerFlags?: string[],
+    linkerFlags: string[],
 }
 
 const run = (cmd: string, args: string[]): Promise<number> => {
@@ -29,23 +30,18 @@ const run = (cmd: string, args: string[]): Promise<number> => {
     });
 };
 
-const runReadText = (cmd: string, args: string[]): Promise<string> => {
-    const child = spawn(cmd, args);
-    let stdout = "";
-    child.stdout.setEncoding("utf8");
-    child.stdout.on("data", (data) => {
-        stdout += data.toString();
-    });
-
-    return new Promise((resolve) => {
-        child.on("close", () => resolve(stdout));
-    });
-};
-
-
-
-export const cc = ({ llvm, watch, sources, headerSearchPath, output, stackSize, totalMemory }: CCOptions): Plugin => {
+export const cc = (options: CCOptions): Plugin => {
     let logger: Logger;
+    const llvm: string = options.llvm ?? process.env.LLVM_ROOT ?? "";
+    const watch: RegExp = options.watch ?? /src\/.*\.[hc]$/;
+    const sources: string[] = options.sources ?? [];
+    const headerSearchPath: string[] = options.headerSearchPath ?? [];
+    const output: string = options.output ?? "main.wasm";
+    const buildDir: string = options.buildDir ?? "build";
+    let stackSize: number | undefined = options.stackSize;
+    let totalMemory: number | undefined = options.totalMemory;
+    const compilerFlags: string[] = options.compilerFlags ?? [];
+    const linkerFlags: string[] = options.linkerFlags ?? [];
 
     // check if file should be trig recompilation
     const checkFile = (filepath: string) => watch.test(filepath);
@@ -57,15 +53,8 @@ export const cc = ({ llvm, watch, sources, headerSearchPath, output, stackSize, 
         return memorySize;
     };
 
-    if (stackSize) {
-        stackSize = alignMemoryWithWarning(stackSize, "stackSize");
-    }
-    if (totalMemory) {
-        totalMemory = alignMemoryWithWarning(totalMemory, "totalMemory");
-    }
     const build = async (...files: string[]) => {
         /*ignore */files;
-        const buildDir = "build";
 
         try {
             await mkdir(buildDir, { recursive: true });
@@ -84,7 +73,7 @@ export const cc = ({ llvm, watch, sources, headerSearchPath, output, stackSize, 
                 "-std=c11",
                 "-ffast-math",
                 "-O0",
-                // TODO:
+                ...compilerFlags,
             ];
             const linkFlags: string[] = [
                 "--no-entry",
@@ -93,6 +82,7 @@ export const cc = ({ llvm, watch, sources, headerSearchPath, output, stackSize, 
                 "--error-limit=0",
                 "--lto-O0",
                 "-O0",
+                ...linkerFlags,
             ];
             if (stackSize) {
                 linkFlags.push("-z", `stack-size=${stackSize}`);
@@ -168,7 +158,15 @@ export const cc = ({ llvm, watch, sources, headerSearchPath, output, stackSize, 
         enforce: "pre",
         async configResolved(config) {
             logger = config.logger;
-            logger.info("command: " + config.command);
+            if (!llvm) {
+                logger.error("[cc] set `LLVM_ROOT` environment variable or define `{ llvm }` option");
+            }
+            if (stackSize) {
+                stackSize = alignMemoryWithWarning(stackSize, "stackSize");
+            }
+            if (totalMemory) {
+                totalMemory = alignMemoryWithWarning(totalMemory, "totalMemory");
+            }
             if (config.command === "serve") {
                 setInterval(async () => {
                     if (changed && !buildInProgress) {

@@ -5,6 +5,7 @@
     "type": "module",
     "private": true,
     "scripts": {
+        "dev": "wsrun -m -a dev",
         "build": "wsrun -m -t build",
         "release": "changeset publish"
     },
