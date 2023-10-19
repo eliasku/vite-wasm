@@ -11,8 +11,7 @@ export default defineConfig({
         },
         rollupOptions: {
             external: [
-              //...Object.keys(pkg.dependencies), // don't bundle dependencies
-              /^node:.*/, // don't bundle built-in Node.js modules (use protocol imports!)
+                /^node:.*/, // don't bundle built-in Node.js modules (use protocol imports!)
             ],
         },
         target: 'esnext', // transpile as little as possible

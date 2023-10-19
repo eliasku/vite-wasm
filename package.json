@@ -5,7 +5,7 @@
     "type": "module",
     "private": true,
     "scripts": {
-        "pre-release": "wsrun -m -t release",
+        "build": "wsrun -m -t build",
         "release": "changeset publish"
     },
     "dependencies": {},
