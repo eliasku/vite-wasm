@@ -1,5 +1,5 @@
 {
-    "name":"vite-wasm-packages",
+    "name": "vite-wasm-packages",
     "description": "monorepo for vite packages",
     "version": "0.0.1",
     "type": "module",
@@ -7,7 +7,9 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "pre-release": "wsrun -m -t build",
+        "release": "changeset publish"
     },
     "dependencies": {},
     "devDependencies": {
@@ -15,13 +17,14 @@
         "typescript": "^5.2.2",
         "@types/node": "^20.8.4",
         "terser": "^5.21.0",
-        "vite-plugin-dts": "^3.6.0"
+        "vite-plugin-dts": "^3.6.0",
+        "wsrun": "^5.2.4"
     },
     "engines": {
         "npm": ">=10",
         "node": ">=20"
     },
-    "workspaces":{
+    "workspaces": {
         "packages": [
             "packages/*"
         ]
