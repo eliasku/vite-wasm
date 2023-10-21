@@ -1,8 +1,13 @@
-# vite plugin for building c files
+# Vite plugin for building C files
 
 Plugin provides `vite` commands to build and watch C source files without `stdlib` using `llvm` toolchain.
 
-See [configuration example](https://github.com/eliasku/vite-wasm/blob/master/packages/vite-wasm-c-example/vite.config.ts)
+## Examples
+
+- [minimal configuration example](https://github.com/eliasku/vite-wasm/blob/master/packages/min-config/vite.config.ts)
+- [configuration example](https://github.com/eliasku/vite-wasm/blob/master/packages/vite-wasm-c-example/vite.config.ts)
+
+## Usage
 
 Import `cc` plugin function
 

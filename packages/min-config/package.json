@@ -1,0 +1,15 @@
+{
+    "name": "vite-wasm-min-config-example",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "vite": "^4.5.0",
+        "@eliasku/vite-plugin-wasm-c": "0.0.4",
+        "dotenv": "^16.3.1"
+    }
+}

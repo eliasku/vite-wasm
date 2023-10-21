@@ -1,11 +1,8 @@
 import { defineConfig, loadEnv } from "vite";
 import { cc } from "@eliasku/vite-plugin-wasm-c";
+import "dotenv/config";
 
 export default defineConfig(async ({ command, mode }) => {
-    const env = loadEnv(mode, process.cwd(), "");
-    const llvm = env.LLVM_PATH ?? process.env.LLVM_PATH;
-    console.info("llvm: " + llvm);
-
     return {
         build: {
             terserOptions: {
@@ -31,7 +28,6 @@ export default defineConfig(async ({ command, mode }) => {
         base: "",
         plugins: [
             cc({
-                llvm,
                 watch: /src\/(wasm|include)\/.*\.[hc]$/,
                 sources: [
                     "./src/wasm/main.c",
