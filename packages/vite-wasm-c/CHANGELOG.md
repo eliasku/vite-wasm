@@ -1,5 +1,11 @@
 # @eliasku/vite-plugin-wasm-c
 
+## 0.0.4
+
+### Patch Changes
+
+- af44e9e: add options and readme
+
 ## 0.0.3
 
 ### Patch Changes
