@@ -8,6 +8,6 @@ EXPORT void update(double timestamp) AS(update);
 double prev_ts;
 
 void update(double timestamp) {
-    print(timestamp - prev_ts);
+    print((timestamp - prev_ts) / 1000.0);
     prev_ts = timestamp;
 }

@@ -96,6 +96,7 @@ export const cc = (options: CCOptions): Plugin => {
             let ts = performance.now();
             const outputWasmFilepath = path.join(buildDir, output);
             let anyObjectFileChanged = !existsSync(outputWasmFilepath);
+            let errorsCount = 0;
             // for each source file create object file
             const objectFiles = await Promise.all(sources.map(async (src) => {
                 // logger.info("[cc] compile: " + src);
@@ -113,9 +114,13 @@ export const cc = (options: CCOptions): Plugin => {
                 catch {
                     // not found
                 }
-                await run(clang, [
+                const result = await run(clang, [
                     "-c", ...compileFlags, "-o", outputFilepath, src,
                 ]);
+                const compileError = result !== 0;
+                if (compileError) {
+                    ++errorsCount;
+                }
                 try {
                     output1 = await readFile(outputFilepath);
                 }
@@ -123,22 +128,33 @@ export const cc = (options: CCOptions): Plugin => {
                     // not found: error
                     logger.error("[cc] output compiled object file is not found");
                 }
-                if (output0 && output1 && 0 !== Buffer.compare(output0, output1)) {
+                const isObjectChanged = (output0 && output1 && 0 !== Buffer.compare(output0, output1)) || !output0;
+                if (compileError || isObjectChanged) {
                     anyObjectFileChanged = true;
                 }
                 return outputFilepath;
             }));
-            logger.info("[cc] all files compiled: " + ((performance.now() - ts) | 0) + " ms");
+            logger.info(`[cc] ${objectFiles} objects done in ${(performance.now() - ts) | 0} ms`);
 
             if (anyObjectFileChanged) {
-                ts = performance.now();
-                // link object files to wasm file
-                await run(ld, [
-                    ...linkFlags,
-                    "-o", outputWasmFilepath,
-                    ...objectFiles,
-                ]);
-                logger.info("[cc] binary linked: " + ((performance.now() - ts) | 0) + " ms");
+                if (errorsCount) {
+                    logger.error("[cc] failed, check compile errors");
+                }
+                else {
+                    ts = performance.now();
+                    // link object files to wasm file
+                    const linkResult = await run(ld, [
+                        ...linkFlags,
+                        "-o", outputWasmFilepath,
+                        ...objectFiles,
+                    ]);
+                    if (linkResult) {
+                        logger.error("[cc] link failed (" + ((performance.now() - ts) | 0) + " ms)");
+                    }
+                    else {
+                        logger.info("[cc] binary linked (" + ((performance.now() - ts) | 0) + " ms)");
+                    }
+                }
             }
             else {
                 logger.info("[cc] binary not affected");
