@@ -7,13 +7,14 @@ document.body.appendChild(p);
 
 WebAssembly.instantiateStreaming(fetch(wasmUrl), {
     env: {
-        print: (num: number) => {
-            p.innerText = "info: " + num;
+        // print
+        p: (num: number) => {
+            p.innerText = "output: " + num;
         },
     },
 }).then((source) => {
     const exports = source.instance.exports;
-    const update = exports.update as Function;
+    const update = exports.u as Function;
     const raf = requestAnimationFrame;
     const loop = (ts: DOMHighResTimeStamp) => {
         update(ts);

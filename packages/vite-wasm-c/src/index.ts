@@ -7,6 +7,11 @@ import { existsSync } from "node:fs";
 
 const wasmPageSize = 0x10000;
 
+export interface CCFlags {
+    compiler?: string[];
+    linker?: string[];
+}
+
 export interface CCOptions {
     llvm?: string,
     watch?: RegExp,
@@ -40,8 +45,6 @@ export const cc = (options: CCOptions): Plugin => {
     const buildDir: string = options.buildDir ?? "build";
     let stackSize: number | undefined = options.stackSize;
     let totalMemory: number | undefined = options.totalMemory;
-    const compilerFlags: string[] = options.compilerFlags ?? [];
-    const linkerFlags: string[] = options.linkerFlags ?? [];
 
     // check if file should be trig recompilation
     const checkFile = (filepath: string) => watch.test(filepath);
@@ -53,8 +56,40 @@ export const cc = (options: CCOptions): Plugin => {
         return memorySize;
     };
 
-    const build = async (...files: string[]) => {
-        /*ignore */files;
+    const build = async (command: string) => {
+        const compilerFlags: string[] = options.compilerFlags ?? (
+            command === "serve" ? [
+                "-O0",
+            ] : [
+                "-Os",
+                "-flto",
+
+                "-fomit-frame-pointer",
+                "-ffunction-sections",
+                "-fdata-sections",
+                
+                // "-fstrict-aliasing",
+                // "-fstrict-overflow",
+                // "-fno-align-functions",
+                
+                // "-falign-jumps",
+                // "-fno-align-loops",
+                // "-falign-labels",
+                // "-fno-inline-small-functions",
+                // "-fno-inline-functions-called-once",
+                // "-fno-inline-functions",
+            ]
+        );
+        const linkerFlags: string[] = options.linkerFlags ?? (
+            command === "serve" ? [
+                "--lto-O0",
+                "-O0",
+            ] : [
+                "--strip-all",
+                "--lto-O3",
+                "-O3",
+            ]
+        );
 
         try {
             await mkdir(buildDir, { recursive: true });
@@ -66,13 +101,21 @@ export const cc = (options: CCOptions): Plugin => {
         try {
             const compileFlags: string[] = [
                 ...headerSearchPath.map((includeDir) => `-I${includeDir}`),
-                //"-Wall",
+                "-Wall",
                 "--target=wasm32",
                 "-nostdlib",
                 "-fvisibility=hidden",
                 "-std=c11",
                 "-ffast-math",
-                "-O0",
+                "-fno-vectorize",
+                "-fno-tree-vectorize",
+                // wasm features:
+                "-mnontrapping-fptoint",
+                // "-msimd128",
+                "-msign-ext",
+                "-mbulk-memory",
+                "-mmutable-globals",
+                "-mmultivalue",
                 ...compilerFlags,
             ];
             const linkFlags: string[] = [
@@ -80,8 +123,6 @@ export const cc = (options: CCOptions): Plugin => {
                 "--export-dynamic",
                 "--allow-undefined",
                 "--error-limit=0",
-                "--lto-O0",
-                "-O0",
                 ...linkerFlags,
             ];
             if (stackSize) {
