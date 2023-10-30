@@ -1,5 +1,12 @@
 # @eliasku/vite-plugin-wasm-c
 
+## 0.0.5
+
+### Patch Changes
+
+- dcf9380: fix watch mode for compile errors
+- 2e75ad4: opt build flags by default
+
 ## 0.0.4
 
 ### Patch Changes
