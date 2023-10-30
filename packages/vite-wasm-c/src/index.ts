@@ -59,7 +59,8 @@ export const cc = (options: CCOptions): Plugin => {
     const build = async (command: string) => {
         const compilerFlags: string[] = options.compilerFlags ?? (
             command === "serve" ? [
-                "-O0",
+                "-Og",
+                "-g"
             ] : [
                 "-Os",
                 "-flto",
@@ -84,6 +85,7 @@ export const cc = (options: CCOptions): Plugin => {
             command === "serve" ? [
                 "--lto-O0",
                 "-O0",
+                "-g",
             ] : [
                 "--strip-all",
                 "--lto-O3",
