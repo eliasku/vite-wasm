@@ -13,16 +13,18 @@ export interface CCFlags {
 }
 
 export interface CCOptions {
-    llvm?: string,
-    watch?: RegExp,
-    sources?: string[],
-    headerSearchPath?: string[],
-    output?: string,
-    stackSize?: number,
-    totalMemory?: number,
-    buildDir?: string,
-    compilerFlags?: string[],
-    linkerFlags?: string[],
+    llvm?: string;
+    watch?: RegExp;
+    sources?: string[];
+    headerSearchPath?: string[];
+    output?: string;
+    stackSize?: number;
+    totalMemory?: number;
+    buildDir?: string;
+    compilerFlags?: string[];
+    linkerFlags?: string[];
+    stdlib?: string;
+    std?: string;
 }
 
 const run = (cmd: string, args: string[]): Promise<number> => {
@@ -57,6 +59,8 @@ export const cc = (options: CCOptions): Plugin => {
     };
 
     const build = async (command: string) => {
+        const stdlib: string = options.stdlib ?? "";
+        const std: string = options.std ?? "c17";
         const compilerFlags: string[] = options.compilerFlags ?? (
             command === "serve" ? [
                 "-Og",
@@ -105,9 +109,8 @@ export const cc = (options: CCOptions): Plugin => {
                 ...headerSearchPath.map((includeDir) => `-I${includeDir}`),
                 "-Wall",
                 "--target=wasm32",
-                "-nostdlib",
                 "-fvisibility=hidden",
-                "-std=c11",
+                `-std=${std}`,
                 "-ffast-math",
                 "-fno-vectorize",
                 "-fno-tree-vectorize",
@@ -120,6 +123,13 @@ export const cc = (options: CCOptions): Plugin => {
                 "-mmultivalue",
                 ...compilerFlags,
             ];
+            if (stdlib) {
+                compileFlags.push(`-stdlib=${stdlib}`);
+            }
+            else {
+                compileFlags.push("-nostdlib");
+            }
+
             const linkFlags: string[] = [
                 "--no-entry",
                 "--export-dynamic",
@@ -231,13 +241,13 @@ export const cc = (options: CCOptions): Plugin => {
                     if (changed && !buildInProgress) {
                         changed = false;
                         buildInProgress = true;
-                        await build();
+                        await build(config.command);
                         buildInProgress = false;
                     }
                 }, 200);
             }
             else {
-                await build();
+                await build(config.command);
             }
         },
         async configureServer(server) {

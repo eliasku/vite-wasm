@@ -4,9 +4,7 @@ declare const info: HTMLParagraphElement;
 
 WebAssembly.instantiateStreaming(fetch(wasmUrl), {
     env: {
-        print: (num: number) => {
-            info.innerText = "info: " + num;
-        },
+
     },
 }).then((source) => {
     const exports = source.instance.exports;

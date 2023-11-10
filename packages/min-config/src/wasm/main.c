@@ -1,13 +1,12 @@
-#define IMPORT extern
-#define EXPORT __attribute__((visibility("default")))
-#define AS(x) __asm__(#x)
+// #include <stdio.h>
 
-IMPORT void print(double number) AS(print);
-EXPORT void update(double timestamp) AS(update);
+#define EXPORT __attribute__((visibility("default")))
+
+EXPORT void update(double timestamp);
 
 double prev_ts;
 
 void update(double timestamp) {
-    print((timestamp - prev_ts) / 1000.0);
+    // printf("dt: %lf", timestamp - prev_ts);
     prev_ts = timestamp;
 }
