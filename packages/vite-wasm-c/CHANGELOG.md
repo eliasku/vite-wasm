@@ -1,5 +1,11 @@
 # @eliasku/vite-plugin-wasm-c
 
+## 0.0.6
+
+### Patch Changes
+
+- 7433ab8: stdlib option
+
 ## 0.0.5
 
 ### Patch Changes
