@@ -1,5 +1,11 @@
 # @eliasku/vite-plugin-wasm-c
 
+## 0.0.7
+
+### Patch Changes
+
+- 558667a: fix debug linker flag
+
 ## 0.0.6
 
 ### Patch Changes
