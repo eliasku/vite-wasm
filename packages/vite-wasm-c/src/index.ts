@@ -25,6 +25,7 @@ export interface CCOptions {
     linkerFlags?: string[];
     stdlib?: string;
     std?: string;
+    debug?: boolean;
 }
 
 const run = (cmd: string, args: string[]): Promise<number> => {
@@ -61,8 +62,9 @@ export const cc = (options: CCOptions): Plugin => {
     const build = async (command: string) => {
         const stdlib: string = options.stdlib ?? "";
         const std: string = options.std ?? "c17";
+        const debug = options.debug ?? command === "serve";
         const compilerFlags: string[] = options.compilerFlags ?? (
-            command === "serve" ? [
+            debug ? [
                 "-Og",
                 "-g"
             ] : [
@@ -86,10 +88,9 @@ export const cc = (options: CCOptions): Plugin => {
             ]
         );
         const linkerFlags: string[] = options.linkerFlags ?? (
-            command === "serve" ? [
+            debug ? [
                 "--lto-O0",
                 "-O0",
-                "-g",
             ] : [
                 "--strip-all",
                 "--lto-O3",
